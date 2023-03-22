@@ -1,0 +1,88 @@
+sudo apt update
+sudo apt install nginx
+sudo systemctl status nginx
+sudo ufw status
+sudo ufw allow 'Nginx Full'
+sudo ufw enable
+sudo ufw reload
+sudo ufw status
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d keycloak.paymax.ng to -d www.keycloak.paymax.ng
+sudo certbot renew --dry-run
+sudo unlink /etc/nginx/sites-available/default
+cd /etc/nginx/sites-available/
+sudo nano keycloak.paymax.ng.conf
+
+
+
+server {
+    listen 80;
+    server_name keycloak.paymax.ng www.keycloak.paymax.ng;
+    rewrite ^ https://keycloak.paymax.ng permanent;
+}
+
+server {
+    listen 443 ssl;
+    server_name keycloak.paymax.ng www.keycloak.paymax.ng; 
+
+    # ssl_certificate /etc/letsencrypt/live/keycloak.paymax.ng/fullchain.pem; 
+    # ssl_certificate_key /etc/letsencrypt/live/keycloak.paymax.ng/privkey.pem; 
+    ssl_certificate /home/ubuntu/paymax/nginx_bundle_b548cb560dce.crt;
+    ssl_certificate_key /home/ubuntu/paymax/keycloak.paymax.ng.key;
+    ssl_session_cache builtin:1000 shared:ssl:10m;
+    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
+    ssl_prefer_server_ciphers on;
+
+    location / {
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forward-For     $proxy_add_x_forward_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://18.177.140.118:8081;
+    }
+}
+
+
+
+
+sudo ln -s /etc/nginx/sites-enabled/keycloak.paymax.ng.conf /etc/nginx/sites-enabled/keycloak.paymax.ng.conf
+
+sudo nginx -t
+
+sudo apt update;
+
+
+#now install docker
+sudo systemctl status docker.service
+docker compose version
+sudo apt update
+
+
+
+
+version: "3.9"
+name: hmo-keycloak
+services:
+  keycloak:
+    container_name: "keycloak"
+    image: quay.io/keycloak/keycloak:latest
+    restart: always
+    environment:
+       KC_DB: postgres
+       KC_DB_URL_HOST: 18.177.140.118
+       KC_DB_URL_DATABASE: keycloak
+       KC_DB_USERNAME: keycloak
+       KC_DB_PASSWORD: keycloak
+       KC_HOSTNAME_URL: https://keycloak.paymax.ng
+       KC_HOSTNAME_STRICT_HTTPS: "true"
+       KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
+       KC_PROXY: edge
+       KEYCLOAK_ADMIN: admin
+       KEYCLOAK_ADMIN_PASSWORD: password@123
+       KEYCLOAK_FRONTEND_URL: "https://keycloak.paymax.ng/auth"
+    ports:
+      - 8443:8443
+      - 8081:8080
+    command: start
+
