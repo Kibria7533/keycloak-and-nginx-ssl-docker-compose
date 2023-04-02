@@ -27,8 +27,8 @@ server {
 
     # ssl_certificate /etc/letsencrypt/live/keycloak.paymax.ng/fullchain.pem; 
     # ssl_certificate_key /etc/letsencrypt/live/keycloak.paymax.ng/privkey.pem; 
-    ssl_certificate /home/ubuntu/paymax/nginx_bundle_b548cb560dce.crt;
-    ssl_certificate_key /home/ubuntu/paymax/keycloak.paymax.ng.key;
+    ssl_certificate /home/ubuntu/nr/nginx_bundle_b548cb560dce.crt;
+    ssl_certificate_key /home/ubuntu/nr/private.key.pem;
     ssl_session_cache builtin:1000 shared:ssl:10m;
     ssl_protocols       TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
     ssl_ciphers         HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
@@ -37,7 +37,7 @@ server {
     location / {
         proxy_set_header Host              $host;
         proxy_set_header X-Real-IP         $remote_addr;
-        proxy_set_header X-Forward-For     $proxy_add_x_forward_for;
+        proxy_set_header X-Forward-For     $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_pass http://18.177.140.118:8081;
     }
