@@ -1,0 +1,34 @@
+Fistr Create a conf file , give it any name suppose (keycloak.conf)
+sudo nano /etc/nginx/sites-available/keycloak.conf
+
+## Then add this 
+
+server {
+    listen 80;
+    server_name example.com;
+
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name example.com;
+
+    ssl_certificate /path/to/ssl_certificate.crt;
+    ssl_certificate_key /path/to/ssl_certificate.key;
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+## Then I need to link it with site enable
+
+sudo ln -s /etc/nginx/sites-available/keycloak.conf /etc/nginx/sites-enabled/
+ # then check
+ 
+ sudo nginx -t
