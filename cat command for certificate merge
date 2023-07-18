@@ -1,0 +1,1 @@
+cat cert.pem chain.pem privkey.pem > custom-combine.pem
